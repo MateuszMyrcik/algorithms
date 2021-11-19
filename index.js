@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 // Utils
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -233,6 +235,7 @@ function init() {
     pr_krzyz,
     pr_mut
   ) {
+    let logs = "";
     for (let i = 0; i < ile_wyn; i++) {
       populacja = inicjalizaca_populacji(ile_os);
       pary = losowaniePary();
@@ -240,11 +243,14 @@ function init() {
       populacjaPoMutacji = mutacjaOsobnikow();
       populacja = selekcjaOsobnikow();
       najwiekszyOsobnik = znajdzMaxOsobnika();
+      logs += `Najwiekszy osobnik w pokoleniu ${i}, f(${najwiekszyOsobnik.x}) = ${najwiekszyOsobnik.y}\n`;
 
-      console.log(
-        `Najwiekszy osobnik w pokoleniu ${i}, f(${najwiekszyOsobnik.x}) = ${najwiekszyOsobnik.y} `
-      );
+      // console.log(
+      //   `Najwiekszy osobnik w pokoleniu ${i}, f(${najwiekszyOsobnik.x}) = ${najwiekszyOsobnik.y} `
+      // );
     }
+
+    fs.writeFileSync("results.txt", logs);
     // console.log("paryPoKrzyzowaniu", paryPoKrzyzowaniu);
   }
 
