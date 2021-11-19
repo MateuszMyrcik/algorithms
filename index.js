@@ -121,11 +121,12 @@ function init() {
   }
 
   function selekcjaOsobnikow() {
+    const wartonscMinOsobnika = znajdzMinOsobnika().y;
     let prawdoPosrodPopulacji = [];
     let nowaPopulacja = [...populacjaPoMutacji];
 
     const sumaWartosciOsobnikow = populacjaPoMutacji.reduce(
-      (prevOsobnik, currentOsobnik, index) => {
+      (prevOsobnik, currentOsobnik) => {
         return (
           prevOsobnik + fun_kwadratowa(parseInt(currentOsobnik.join(""), 2))
         );
@@ -135,9 +136,15 @@ function init() {
 
     prawdoPosrodPopulacji = [...populacjaPoMutacji].map((osobnik) => {
       return {
-        wartosc: fun_kwadratowa(parseInt(osobnik.join(""), 2)),
+        wartosc:
+          fun_kwadratowa(parseInt(osobnik.join(""), 2)) +
+          wartonscMinOsobnika +
+          1,
         prawdodobienstwo:
-          fun_kwadratowa(parseInt(osobnik.join(""), 2)) / sumaWartosciOsobnikow,
+          (fun_kwadratowa(parseInt(osobnik.join(""), 2)) +
+            wartonscMinOsobnika +
+            1) /
+          sumaWartosciOsobnikow,
       };
     });
 
@@ -193,6 +200,29 @@ function init() {
     });
 
     return wartoscMaxOsobnika;
+  }
+
+  function znajdzMinOsobnika() {
+    let wartonscMinOsobnika = {
+      y: null,
+      x: null,
+    };
+
+    // console.log(populacja);
+
+    populacja.forEach((osobnik) => {
+      const wartocOsobnika = fun_kwadratowa(arrayToDecimal(osobnik));
+
+      if (
+        wartocOsobnika < wartonscMinOsobnika.y ||
+        wartonscMinOsobnika.y === null
+      ) {
+        wartonscMinOsobnika.y = wartocOsobnika;
+        wartonscMinOsobnika.x = arrayToDecimal(osobnik);
+      }
+    });
+
+    return wartonscMinOsobnika;
   }
 
   function simpleGenericAlgorithm(
