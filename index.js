@@ -25,14 +25,14 @@ function init() {
   const dlug_ciagu = 8; // dlugosc ciagu
 
   const wspolczynniki = {
-    a: -5,
-    b: 80,
-    c: -12,
+    a: -1,
+    b: 0,
+    c: 100,
   };
 
   let ile_wyn = 40; //	liczba	uruchomień	programu
   let lb_pop = 2; // liczba	populacji
-  let ile_os = 10; // liczba	osobników	w	populacji
+  let ile_os = 70; // liczba	osobników	w	populacji
   let pr_krzyz = 0.8; // prawdopodobieństwo	krzyżowania
   let pr_mut = 0.1; // prawdopodobieństwo	mutacji
 
@@ -59,8 +59,9 @@ function init() {
   function losowaniePary() {
     pary = [];
     const nums = new Set();
-    while (nums.size !== 10) {
-      nums.add(Math.floor(Math.random() * 10));
+
+    while (nums.size !== ile_os) {
+      nums.add(Math.floor(Math.random() * ile_os));
     }
 
     for (let i = 0; i < ile_os; i += 2) {
@@ -166,9 +167,6 @@ function init() {
           }
         }
       );
-
-      // console.log("osobnik przed", osobnik);
-      // console.log("osobnik po", populacjaPoMutacji[indexOsobnikaZPrzedzialu]);
 
       return populacjaPoMutacji[indexOsobnikaZPrzedzialu];
     });
