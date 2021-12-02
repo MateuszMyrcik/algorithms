@@ -19,21 +19,20 @@ function arrayToDecimal(arr) {
 
 function init() {
   let populacja = [];
-  let populacjaPoKrzyzowaniu = [];
   let pary = [];
-  let paryPoKrzyzowaniu = [];
+  let populacjaPoKrzyzowaniu = [];
   let populacjaPoMutacji = [];
   const dlug_ciagu = 8; // dlugosc ciagu
 
   const wspolczynniki = {
-    a: -1,
-    b: 2,
-    c: 7,
+    a: -5,
+    b: 80,
+    c: -12,
   };
 
   let ile_wyn = 40; //	liczba	uruchomień	programu
-  let lb_pop = 100; // liczba	populacji
-  let ile_os = 100; // liczba	osobników	w	populacji
+  let lb_pop = 2; // liczba	populacji
+  let ile_os = 10; // liczba	osobników	w	populacji
   let pr_krzyz = 0.8; // prawdopodobieństwo	krzyżowania
   let pr_mut = 0.1; // prawdopodobieństwo	mutacji
 
@@ -51,35 +50,29 @@ function init() {
         osobnik.push(getRandomInt(2));
       }
 
-      // const string_osobnik = osobnik.join("");
       populacja.push(osobnik);
-      // populacja.push(parseInt(osobnik.join(""), 2));
     }
 
     return populacja;
   }
 
   function losowaniePary() {
-    const tymczasowaPopulacja = [...populacja];
+    pary = [];
+    const nums = new Set();
+    while (nums.size !== 10) {
+      nums.add(Math.floor(Math.random() * 10));
+    }
 
-    for (let i = 0; i < ile_os / 2; i++) {
-      let osobnikA = tymczasowaPopulacja.splice(
-        Math.random(tymczasowaPopulacja.length),
-        1
-      )[0];
+    for (let i = 0; i < ile_os; i += 2) {
+      const osobnikA = populacja[[...nums][i]];
+      const osobnikB = populacja[[...nums][i + 1]];
 
-      let osobnikB = tymczasowaPopulacja.splice(
-        Math.random(tymczasowaPopulacja.length),
-        1
-      )[0];
+      if (osobnikA === undefined || osobnikB === undefined) {
+        debugger;
+      }
 
       pary.push([osobnikA, osobnikB]);
     }
-
-    // console.log("pary", pary);
-    // console.log("populacja", populacja);
-
-    // TODO: verify pars
 
     return pary;
   }
@@ -88,8 +81,6 @@ function init() {
     const paryPoKrzyzowaniu = pary.map((para) => {
       if (Math.random(1) < pr_krzyz) {
         const punktPrzeciecia = Math.floor(Math.random() * 6 + 1);
-        // console.log("para przed krzyzowaniem", para);
-        // console.log("punktPrzeciecia", punktPrzeciecia);
 
         const osobnikA = [
           ...para[0].slice(0, punktPrzeciecia),
@@ -123,30 +114,34 @@ function init() {
   }
 
   function selekcjaOsobnikow() {
-    const wartonscMinOsobnika = znajdzMinOsobnika().y;
+    const wartonscMinOsobnika = znajdzMinOsobnika(populacjaPoMutacji).y;
+
     let prawdoPosrodPopulacji = [];
     let nowaPopulacja = [...populacjaPoMutacji];
 
     const sumaWartosciOsobnikow = populacjaPoMutacji.reduce(
       (prevOsobnik, currentOsobnik) => {
         return (
-          prevOsobnik + fun_kwadratowa(parseInt(currentOsobnik.join(""), 2))
+          prevOsobnik +
+          fun_kwadratowa(arrayToDecimal(currentOsobnik)) +
+          Math.abs(wartonscMinOsobnika) +
+          1
         );
       },
       0
     );
 
     prawdoPosrodPopulacji = [...populacjaPoMutacji].map((osobnik) => {
+      const wartosc =
+        fun_kwadratowa(parseInt(osobnik.join(""), 2)) +
+        Math.abs(wartonscMinOsobnika) +
+        1;
+
+      const prawdodobienstwo = wartosc / sumaWartosciOsobnikow;
+
       return {
-        wartosc:
-          fun_kwadratowa(parseInt(osobnik.join(""), 2)) +
-          wartonscMinOsobnika +
-          1,
-        prawdodobienstwo:
-          (fun_kwadratowa(parseInt(osobnik.join(""), 2)) +
-            wartonscMinOsobnika +
-            1) /
-          sumaWartosciOsobnikow,
+        wartosc,
+        prawdodobienstwo,
       };
     });
 
@@ -158,45 +153,43 @@ function init() {
       return prawdoPosrodPopulacji[index].to;
     }, 0);
 
-    // console.log("populacjaPoMutacji", populacjaPoMutacji);
-
     const populacjaPoSelekcji = populacjaPoMutacji.map((osobnik) => {
       const losowaLiczba = Math.random();
+
       const indexOsobnikaZPrzedzialu = prawdoPosrodPopulacji.findIndex(
-        (osobnikZPrawdo, indexPrawdo) => {
+        (osobnikZPrawdo) => {
           if (
-            osobnikZPrawdo.from < losowaLiczba &&
-            osobnikZPrawdo.to > losowaLiczba
+            osobnikZPrawdo.from <= losowaLiczba &&
+            osobnikZPrawdo.to >= losowaLiczba
           ) {
-            return indexPrawdo;
+            return true;
           }
         }
       );
+
+      // console.log("osobnik przed", osobnik);
+      // console.log("osobnik po", populacjaPoMutacji[indexOsobnikaZPrzedzialu]);
 
       return populacjaPoMutacji[indexOsobnikaZPrzedzialu];
     });
 
     return populacjaPoSelekcji;
-
-    // console.log("populacjaPoSelekcji", populacjaPoSelekcji);
   }
 
-  function znajdzMaxOsobnika() {
+  function znajdzMaxOsobnika(populacja) {
     let wartoscMaxOsobnika = {
       y: null,
       x: null,
     };
 
-    // console.log(populacja);
-
     populacja.forEach((osobnik) => {
-      const wartocOsobnika = fun_kwadratowa(arrayToDecimal(osobnik));
+      const wartoscOsobnika = fun_kwadratowa(arrayToDecimal(osobnik));
 
       if (
-        wartocOsobnika > wartoscMaxOsobnika.y ||
+        wartoscOsobnika > wartoscMaxOsobnika.y ||
         wartoscMaxOsobnika.y === null
       ) {
-        wartoscMaxOsobnika.y = wartocOsobnika;
+        wartoscMaxOsobnika.y = wartoscOsobnika;
         wartoscMaxOsobnika.x = arrayToDecimal(osobnik);
       }
     });
@@ -204,13 +197,11 @@ function init() {
     return wartoscMaxOsobnika;
   }
 
-  function znajdzMinOsobnika() {
+  function znajdzMinOsobnika(populacja) {
     let wartonscMinOsobnika = {
       y: null,
       x: null,
     };
-
-    // console.log(populacja);
 
     populacja.forEach((osobnik) => {
       const wartocOsobnika = fun_kwadratowa(arrayToDecimal(osobnik));
@@ -238,20 +229,20 @@ function init() {
     let logs = "";
     for (let i = 0; i < ile_wyn; i++) {
       populacja = inicjalizaca_populacji(ile_os);
-      pary = losowaniePary();
-      populacjaPoKrzyzowaniu = krzyzowanie_par().flat(1); // flat na zwroconych parach
-      populacjaPoMutacji = mutacjaOsobnikow();
-      populacja = selekcjaOsobnikow();
-      najwiekszyOsobnik = znajdzMaxOsobnika();
-      logs += `Najwiekszy osobnik w pokoleniu ${i}, f(${najwiekszyOsobnik.x}) = ${najwiekszyOsobnik.y}\n`;
 
-      // console.log(
-      //   `Najwiekszy osobnik w pokoleniu ${i}, f(${najwiekszyOsobnik.x}) = ${najwiekszyOsobnik.y} `
-      // );
+      for (let j = 0; j < lb_pop; j++) {
+        pary = losowaniePary();
+        populacjaPoKrzyzowaniu = krzyzowanie_par().flat(1); // flat na zwroconych parach
+        populacjaPoMutacji = mutacjaOsobnikow();
+        populacja = selekcjaOsobnikow();
+      }
+
+      najwiekszyOsobnik = znajdzMaxOsobnika(populacja);
+
+      logs += `${najwiekszyOsobnik.x} ${najwiekszyOsobnik.y}\n`;
     }
 
     fs.writeFileSync("results.txt", logs);
-    // console.log("paryPoKrzyzowaniu", paryPoKrzyzowaniu);
   }
 
   simpleGenericAlgorithm(
