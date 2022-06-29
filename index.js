@@ -26,13 +26,13 @@ function init() {
 
   const wspolczynniki = {
     a: -1,
-    b: 0,
-    c: 100,
+    b: 80,
+    c: -1,
   };
 
   let ile_wyn = 40; //	liczba	uruchomień	programu
   let lb_pop = 2; // liczba	populacji
-  let ile_os = 70; // liczba	osobników	w	populacji
+  let ile_os = 50; // liczba	osobników	w	populacji
   let pr_krzyz = 0.8; // prawdopodobieństwo	krzyżowania
   let pr_mut = 0.1; // prawdopodobieństwo	mutacji
 
@@ -225,9 +225,9 @@ function init() {
     pr_mut
   ) {
     let logs = "";
+    populacja = inicjalizaca_populacji(ile_os);
+    
     for (let i = 0; i < ile_wyn; i++) {
-      populacja = inicjalizaca_populacji(ile_os);
-
       for (let j = 0; j < lb_pop; j++) {
         pary = losowaniePary();
         populacjaPoKrzyzowaniu = krzyzowanie_par().flat(1); // flat na zwroconych parach
